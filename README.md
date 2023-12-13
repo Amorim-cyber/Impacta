@@ -27,3 +27,11 @@ Cada forúm contém tópicos sobre um determinado jogo, é por lá que usuários
 
 <h3>Sobre nossa solução:</h3>
 
+Nossa ideia é desenvolver um pipeline dividido em 3 etapas:
+
+1. Extração dos dados do site utilizando linguagem `Python` com a biblioteca do `BeautifulSoup`, salvando-os no formato `.parquet`
+2. Transformação dos dados brutos para analise por meio do `Databricks` dentro da nuvem `Azure`
+3. Envio do relatório para o cliente final usando um bot do Slack 
+
+Todo o processo orquestrado utilizando `Airflow`.
+
