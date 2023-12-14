@@ -35,13 +35,19 @@ Nossa ideia é desenvolver um pipeline dividido em 3 etapas:
 
 Todo o processo orquestrado utilizando `Airflow`.
 
+<div style="page-break-after: always;"></div>
+
 <img src="img/diagrama.png">
 
 Conforme podemos observar no diagrama acima criamos uma instância do Databricks dentro dos serviços em nuvem da Azure. Dentro dessa instância adicionamos um Notebook para cada etapa. Ainda dentro do Databricks desenvolvemos 3 jobs, cada um com a finalidade de executar um Notebook. Por fim criamos uma DAG do Airflow que aciona automaticamente os jobs do Databricks em um determinado horario do dia.
 
+<div style="page-break-after: always;"></div>
+
 Sobre a optica da arquitetura medalhão, na camada bronze os dados brutos que extraimos do site são armazenados em parquet sem nenhuma alteração, na camada silver é aonde de fato transformamos o dado até sua forma final e na camada gold o dado está pronto para ser usado como objeto de análise pelo usuário. 
 
 <img src="img/medalhão.png">
+
+<div style="page-break-after: always;"></div>
 
 <h3>Sobre o dado:</h3>
 
@@ -50,6 +56,8 @@ Olhando a sessão fóruns dentro do site, percebemos que há uma granularidade:
 <img src="img/Agrupamento.png">
 
 No nível 1 temos n fóruns (F2,F3,Fn), cada fórum pode conter um conjunto de n tópicos (T1,T2,Tn) representado pelo nível 2, que por sua vez pode ter um conjunto de n posts (P1,P2,Pn) no nível 3. Vamos pegar o dado referente aos posts por estar no ultimo nível da granularidade, aonde teremos um maior grau de detalhamento.
+
+<div style="page-break-after: always;"></div>
 
 Portanto vamos extrair os seguintes dados de post:
 
@@ -387,6 +395,7 @@ for topic in df_topic_group.columns[1:]:
 
 
 ```
+<div style="page-break-after: always;"></div>
 
 <h3>Sobre o Airflow:</h3>
 
@@ -427,11 +436,15 @@ with DAG(
 
 ```
 
+<div style="page-break-after: always;"></div>
+
 <h3>Gráficos do relatorio final</h3>
 
 Assim concluimos o projeto, deixo aqui as imagens dos graficos enviados ao Slack
 
 <img src="img/topic_name.png">
+
+<div style="page-break-after: always;"></div>
 <img src="img/user_name.png">
 <img src="img/Ajuda Ludopedia.png">
 <img src="img/Análises.png">
