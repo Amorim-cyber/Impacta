@@ -39,6 +39,10 @@ Todo o processo orquestrado utilizando `Airflow`.
 
 Conforme podemos observar no diagrama acima criamos uma instância do Databricks dentro dos serviços em nuvem da Azure. Dentro dessa instância adicionamos um Notebook para cada etapa. Ainda dentro do Databricks desenvolvemos 3 jobs, cada um com a finalidade de executar um Notebook. Por fim criamos uma DAG do Airflow que aciona automaticamente os jobs do Databricks em um determinado horario do dia.
 
+Sobre a optica da arquitetura medalhão, na camada bronze os dados brutos que extraimos do site são armazenados em parquet sem nenhuma alteração, na camada silver é aonde de fato transformamos o dado até sua forma final e na camada gold o dado está pronto para ser usado como objeto de análise pelo usuário. 
+
+<img src="img/medalhão.png">
+
 <h3>Sobre o dado:</h3>
 
 Olhando a sessão fóruns dentro do site, percebemos que há uma granularidade:
@@ -61,7 +65,7 @@ Antes de passarmos para as etapas do pipeline, há certos pontos a serem informa
 
 1. O processo de extração funciona bem para pequenos volumes de dados, a finalidade do case é trabalhar com volumes grandes e o site possui isso, contudo mesmo se a gente quisesse pegar uma pequena parte para cumprir os requisitos minimos dos 500 mil registros, com a infra que estamos utilizando (Runner com 14 GB de memória, 4 núcleos) levaria um bom tempo para pegar tudo de uma só vez. 
 
-2. Então para cumprir com o exigido fizemos o seguinte: pegamos 2000 registros de dados reais do site com nosso script e criamos 500 mil registros falsos pegando os dados reais como base. Isso consequentemente vai deixar nossos relatorios finais viesados.
+2. Então para cumprir com o exigido fizemos o seguinte: pegamos 2000 registros de dados reais do site com nosso script e criamos 500 mil registros falsos pegando os dados reais como base.
 
 <h3>ETAPA 1: Extração</h3>
 
@@ -251,9 +255,12 @@ df_posts = spark.read.parquet("dbfs:/databricks-results/ludo/bronze/*/*")
 day = df_posts['post_time'].substr(1,2)
 month = df_posts['post_time'].substr(4,5).substr(1,2)
 year = concat(lit(20),df_posts['post_time'].substr(7,8).substr(1,2).cast('string'))
+year2 = df_posts['post_time'].cast('string').substr(7,8).substr(1,4)
 
-df_posts = df_posts.withColumn('data', to_date(concat(year,lit("-"),month,lit("-"),day))) 
-df_posts = df_posts.withColumn('begin_date', to_date(concat(year,lit("-"),month,lit("-01"))))
+df_posts = df_posts.withColumn('data', when(col('url') != "", to_date(concat(year,lit("-"),month,lit("-"),day))) \
+    .otherwise(to_date(concat(year2,lit("-"),month,lit("-"),day)))) 
+df_posts = df_posts.withColumn('begin_date', when(col('url') != "", to_date(concat(year,lit("-"),month,lit("-01")))) \
+    .otherwise(to_date(concat(year2,lit("-"),month,lit("-01"))))) 
 
 df_topic_group = df_posts.select("begin_date","topic_group")
 df_topic_name = df_posts.select("topic_name")
@@ -315,7 +322,6 @@ Por isso, criamos um workspace onde o bot ira entregar os relatórios e gráfico
 
 <img src="img/bot1.png">
 <img src="img/bot2.png">
-<img src="img/bot3.png">
 
 O terceiro Notebook `3-automatizando-relatorio-ludo` processa os seguintes comandos:
 
@@ -423,7 +429,7 @@ with DAG(
 
 <h3>Gráficos do relatorio final</h3>
 
-Assim concluimos o projeto, deixo aqui as imagens dos graficos criados para o relatório final que foram enviados ao Slack
+Assim concluimos o projeto, deixo aqui as imagens dos graficos enviados ao Slack
 
 <img src="img/topic_name.png">
 <img src="img/user_name.png">
@@ -436,6 +442,5 @@ Assim concluimos o projeto, deixo aqui as imagens dos graficos criados para o re
 <img src="img/Geral.png">
 <img src="img/Jogatinas.png">
 <img src="img/Novidades.png">
-<img src="img/Oficina de Jogos.png">
 <img src="img/Podcasts.png">
 <img src="img/Traduções.png">

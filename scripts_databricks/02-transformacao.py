@@ -5,9 +5,12 @@ df_posts = spark.read.parquet("dbfs:/databricks-results/ludo/bronze/*/*")
 day = df_posts['post_time'].substr(1,2)
 month = df_posts['post_time'].substr(4,5).substr(1,2)
 year = concat(lit(20),df_posts['post_time'].substr(7,8).substr(1,2).cast('string'))
+year2 = df_posts['post_time'].cast('string').substr(7,8).substr(1,4)
 
-df_posts = df_posts.withColumn('data', to_date(concat(year,lit("-"),month,lit("-"),day))) 
-df_posts = df_posts.withColumn('begin_date', to_date(concat(year,lit("-"),month,lit("-01"))))
+df_posts = df_posts.withColumn('data', when(col('url') != "", to_date(concat(year,lit("-"),month,lit("-"),day))) \
+    .otherwise(to_date(concat(year2,lit("-"),month,lit("-"),day)))) 
+df_posts = df_posts.withColumn('begin_date', when(col('url') != "", to_date(concat(year,lit("-"),month,lit("-01")))) \
+    .otherwise(to_date(concat(year2,lit("-"),month,lit("-01"))))) 
 
 df_topic_group = df_posts.select("begin_date","topic_group")
 df_topic_name = df_posts.select("topic_name")
