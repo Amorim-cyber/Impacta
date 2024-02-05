@@ -65,7 +65,7 @@ df_inner_join = pd.merge(df_empresas[['CNPJ_BASICO','RAZAO_SOCIAL','CAPITAL_SOCI
                          df_socios[['CNPJ_BASICO','NOME','DATA_ENTRADA_SOCIEDADE']], \
                             how="inner", on="CNPJ_BASICO").dropna()
 
-dict_of_dicts_empresas = df_inner_join.T.sample(n=1000).to_dict()
+dict_of_dicts_empresas = df_inner_join.T.to_dict()
 
 empresas = list(dict_of_dicts_empresas.values())
 
