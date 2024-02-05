@@ -19,6 +19,12 @@ Para chegarmos aos resultado final precisamos pegar os valores do <b style="colo
 
 Optei por pegar os valores no site do Google Finance utilizando a biblioteca do `BeautifulSoup`.<br>Além disso vamos precisar da lib `requests` para as requisições HTTP. Para algumas abordagens<br>também foi importado a ferramenta de manipulação de strings `regex`.
 
+Links utilizados para a extração:
+
+* BITCOIN >> https://www.google.com/finance/quote/BTC-BRL
+
+* DOLAR >> https://www.google.com/finance/quote/USD-BRL
+
 Segue abaixo os códigos para a extração dos valores web.
 
 <b>ABORDAGEM 1:</b>
